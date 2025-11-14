@@ -9,7 +9,11 @@ endif()
 find_package(ament_cmake REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
-# find_package(<dependency> REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(rosx_introspection REQUIRED)
+find_package(rclcpp REQUIRED)
+
+## Latency Node
 
 add_executable(latency src/latency.cpp)
 target_include_directories(latency PUBLIC
@@ -17,19 +21,49 @@ target_include_directories(latency PUBLIC
   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>)
 target_compile_features(latency PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 
+ament_target_dependencies(latency sensor_msgs rclcpp)
+
 install(TARGETS latency
   DESTINATION lib/${PROJECT_NAME})
 
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  # the following line skips the linter which checks for copyrights
-  # comment the line when a copyright and license is added to all source files
-  set(ament_cmake_copyright_FOUND TRUE)
-  # the following line skips cpplint (only works in a git repo)
-  # comment the line when this package is in a git repo and when
-  # a copyright and license is added to all source files
-  set(ament_cmake_cpplint_FOUND TRUE)
-  ament_lint_auto_find_test_dependencies()
-endif()
+
+## Latency Introspection Node
+
+# add_executable(latency_generic src/latency_generic.cpp)
+# target_include_directories(latency_generic PUBLIC
+#   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+#   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>)
+# target_compile_features(latency_generic PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+
+# ament_target_dependencies(latency_generic  rosx_introspection)
+
+# install(TARGETS latency_generic
+#   DESTINATION lib/${PROJECT_NAME})
+
+
+## Chatter Node
+
+add_executable(chatter src/chatter.cpp)
+target_include_directories(chatter PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include/${PROJECT_NAME}>)
+target_compile_features(chatter PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+
+ament_target_dependencies(chatter sensor_msgs rosx_introspection)
+
+install(TARGETS chatter
+  DESTINATION lib/${PROJECT_NAME})
+
+# if(BUILD_TESTING)
+#   find_package(ament_lint_auto REQUIRED)
+#   # the following line skips the linter which checks for copyrights
+#   # comment the line when a copyright and license is added to all source files
+#   set(ament_cmake_copyright_FOUND TRUE)
+#   # the following line skips cpplint (only works in a git repo)
+#   # comment the line when this package is in a git repo and when
+#   # a copyright and license is added to all source files
+#   set(ament_cmake_cpplint_FOUND TRUE)
+#   ament_lint_auto_find_test_dependencies()
+# endif()
 
 ament_package()
