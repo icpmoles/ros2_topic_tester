@@ -1,6 +1,6 @@
 sink:
   ros__parameters:
-    file_output: "/home/ros2/tesi/topic_tester/latency_ls.csv"
+    file_output: "/home/ros2/tesi/topic_tester/latency_ls_inter.csv"
     msg_type: 0
     rolling_window_size: 20
     # 0 = laserscan

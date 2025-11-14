@@ -7,16 +7,15 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
+
+
     return LaunchDescription([
         Node(
             package='topic_tester',
-            executable='latency_ls',
-            name = "sink",
+            executable='chatter',
+            name="source",
             parameters=[PathJoinSubstitution([
-                FindPackageShare('topic_tester'), 'config', 'sink_pc.yaml'])
-            ],
-            remappings=[
-                ('/input', '/livox/lidar') # either /laserscan or /lidar
+                FindPackageShare('topic_tester'), 'config', 'fake_source.yaml'])
             ]
         )
     ])
