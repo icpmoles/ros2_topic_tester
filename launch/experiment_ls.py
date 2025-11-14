@@ -15,7 +15,7 @@ def generate_launch_description():
             executable='latency_ls',
             name = "sink",
             parameters=[PathJoinSubstitution([
-                FindPackageShare('topic_tester'), 'config', 'fake_source.yaml'])
+                FindPackageShare('topic_tester'), 'config', 'sink_ls.yaml'])
             ],
             remappings=[
                 ('/input', '/laserscan') # either /laserscan or /lidar
