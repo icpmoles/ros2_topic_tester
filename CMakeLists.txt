@@ -15,15 +15,15 @@ find_package(rclcpp REQUIRED)
 
 ## Latency Node
 
-add_executable(latency src/latency.cpp)
-target_include_directories(latency PUBLIC
+add_executable(latency_ls src/latency_ls.cpp)
+target_include_directories(latency_ls PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>)
-target_compile_features(latency PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+target_compile_features(latency_ls PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 
-ament_target_dependencies(latency sensor_msgs rclcpp)
+ament_target_dependencies(latency_ls sensor_msgs rclcpp)
 
-install(TARGETS latency
+install(TARGETS latency_ls
   DESTINATION lib/${PROJECT_NAME})
 
 
@@ -65,5 +65,7 @@ install(TARGETS chatter
 #   set(ament_cmake_cpplint_FOUND TRUE)
 #   ament_lint_auto_find_test_dependencies()
 # endif()
+install(DIRECTORY launch config
+  DESTINATION share/${PROJECT_NAME})
 
 ament_package()

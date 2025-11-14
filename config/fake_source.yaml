@@ -1,0 +1,17 @@
+source:
+  ros__parameters:
+    msg_period: 500.0 #ms
+    scan_width: 3140 # used in pc2 and laserscan
+    scan_height: 100 # only in pc2
+    use_smart_pointer: true
+
+sink:
+  ros__parameters:
+    file_output: "output/latency2.csv"
+    rolling_window_size: 20
+
+/**:
+  ros__parameters:
+    msg_type: 0
+    # 0 = laserscan
+    # 1 = pointcloud    

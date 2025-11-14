@@ -6,6 +6,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/laser_scan.hpp"
+#include "sensor_msgs/msg/point_cloud2.hpp"
 
 using namespace std::chrono_literals;
 
@@ -18,63 +19,157 @@ class MinimalPublisher : public rclcpp::Node
     MinimalPublisher()
     : Node("minimal_publisher"), count_(0)
     {
-      scan_time_s_ = scan_time_.count()*1e-3;
-      RCLCPP_INFO(this->get_logger(), "Publishing: '%f'", scan_time_s_);
+      get_params();
+      std::chrono::milliseconds timer_period{ (int) msg_period_ms_ };
 
-      publisher_ = this->create_publisher<sensor_msgs::msg::LaserScan>("laserscan", rclcpp::SensorDataQoS());
-      timer_ = this->create_wall_timer(scan_time_, std::bind(&MinimalPublisher::timer_callback, this));
+      scan_time_s_ = msg_period_ms_*1e-3;
+      RCLCPP_INFO(this->get_logger(), "Publishing: '%f', %i", scan_time_s_, msg_type_);
+      switch (msg_type_)
+      {
+      case 0:
+       
+        RCLCPP_INFO(this->get_logger(), "Publishing: laserscan: %i points @ %f ms ≈ %f Hz ", scan_width_, scan_time_s_*1e-3 ,1/scan_time_s_); 
+        publisher_ls_ = this->create_publisher<sensor_msgs::msg::LaserScan>("laserscan", rclcpp::SensorDataQoS());
+        timer_ = this->create_wall_timer(timer_period, std::bind(&MinimalPublisher::timer_callback_ls, this));
+        
+        break;
+      case 1:
+        RCLCPP_INFO(this->get_logger(), "Publishing: pc2: %i x %i @ %f ms ≈ %f Hz ", scan_width_, scan_height_, scan_time_s_*1e3 ,1/scan_time_s_);
+
+        publisher_pc_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("lidar", rclcpp::SensorDataQoS());
+        timer_ = this->create_wall_timer(timer_period, std::bind(&MinimalPublisher::timer_callback_pc, this));
+        break;
+      default:
+        RCLCPP_ERROR(this->get_logger(), "msg_type incorrect: use only 0 or 1");
+        rclcpp::shutdown();
+        break;
+      }
+
+      
     }
 
   private:
+    void get_params(){
+      this->declare_parameter("use_smart_pointer", true);
+      use_smart_pointer_ = this->get_parameter("use_smart_pointer").as_bool();
+
+      this->declare_parameter("msg_period", 100.0);
+      msg_period_ms_ = this->get_parameter("msg_period").as_double();
+
+      this->declare_parameter("scan_width", 100);
+      scan_width_ = this->get_parameter("scan_width").as_int();
+
+      this->declare_parameter("scan_height", 100);
+      scan_height_ = this->get_parameter("scan_height").as_int();
+
+      this->declare_parameter("msg_type", 0);
+      msg_type_ = this->get_parameter("msg_type").as_int();
+
+      switch (msg_type_)
+      {
+      case 0:
+        RCLCPP_INFO(this->get_logger(), "Using laserscan source");
+        break;
+      case 1:
+        RCLCPP_INFO(this->get_logger(), "Using pointcloud source");
+        break;
+      default:
+        RCLCPP_ERROR(this->get_logger(), "msg_type incorrect: use only 0 or 1");
+        rclcpp::shutdown();
+        break;
+      }
+
+    }
+
     std::vector<float> get_random_vector(size_t n, int seed)
     {
-        int seconds = std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();
-        seconds+=seed;
-        std::vector<float> v(n, 0); // choosesn by fair dice roll, guaranteed to be random
-
+        int8_t p_rng = seed_memory_ * seed % 2;
+        std::vector<float> v(n, 0); 
         for (auto it = begin (v); it != end (v); ++it) {
-            *it = seconds;
-            seconds++;
-            seconds=(seconds*seed)%2342;
+            *it = p_rng;
+            p_rng++;
+            p_rng=(p_rng*seed)%2342;
         }
 
-        
+        seed_memory_++;
+        return v;
+    }
+
+    std::vector<unsigned char> get_random_pc(size_t n, int seed)
+    {
+        int p_rng = seed_memory_ * seed % 2;
+        std::vector<unsigned char> v(n, 0); 
+        for (auto it = begin (v); it != end (v); ++it) {
+            *it = p_rng%255;
+            p_rng++;
+            p_rng=(p_rng*seed)%2342;
+        }
+
+        seed_memory_++;
         return v;
     }
     
-    void timer_callback()
+    void timer_callback_pc()
     {
-        bool use_smart_pointer = false;
-
-        if (use_smart_pointer){
-            auto message = std::make_unique<sensor_msgs::msg::LaserScan>();
-            message->ranges=get_random_vector(number_of_points,3434);
-            message->intensities=get_random_vector(number_of_points,121);
-            message->scan_time = scan_time_s_;
+        std::string frame_name = "dummy";
+        std::vector payload = get_random_pc((size_t) scan_width_*scan_height_,324);
+        if (use_smart_pointer_){
+            auto message = std::make_unique<sensor_msgs::msg::PointCloud2>();
+            message->data=payload;
+            message->height = scan_height_;
+            message->width = scan_width_;
+            message->header.frame_id = frame_name;
             message->header.stamp = this->now();
-            message->header.frame_id = "dummy";
-            publisher_->publish(std::move(message));
+            publisher_pc_->publish(std::move(message));
         } else {
-            auto message = sensor_msgs::msg::LaserScan();
-            message.ranges=get_random_vector(number_of_points,3434);
-            message.intensities=get_random_vector(number_of_points,121);
-            message.scan_time = scan_time_s_;
+            auto message = sensor_msgs::msg::PointCloud2();
+            message.data=payload;
+            message.header.frame_id = frame_name;
+
             message.header.stamp = this->now();
-            message.header.frame_id = "dummy";
-            publisher_->publish(message);
+            publisher_pc_->publish(message);
         }
       
-      // RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
       
     }
-    rclcpp::TimerBase::SharedPtr timer_;
-    rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr publisher_;
-    size_t count_;
-    size_t number_of_points = 36500;
-    std::chrono::milliseconds scan_time_{50};
-    float scan_time_s_;
 
-    
+    void timer_callback_ls()
+    {   
+        std::string frame_name = "dummy";
+        std::vector payload_ranges = get_random_vector(scan_width_,324);
+        std::vector payload_intensities = get_random_vector(scan_width_,2311);
+
+        if (use_smart_pointer_){
+            auto message = std::make_unique<sensor_msgs::msg::LaserScan>();
+            message->ranges=payload_ranges;
+            message->intensities=payload_intensities;
+            message->scan_time = scan_time_s_;
+            message->header.stamp = this->now();
+            message->header.frame_id = frame_name;
+            publisher_ls_->publish(std::move(message));
+        } else {
+            auto message = sensor_msgs::msg::LaserScan();
+            message.ranges=payload_ranges;
+            message.intensities=payload_intensities;
+            message.scan_time = scan_time_s_;
+            message.header.stamp = this->now();
+            message.header.frame_id = frame_name;
+            publisher_ls_->publish(message);
+        }
+     
+    }
+
+
+    rclcpp::TimerBase::SharedPtr timer_;
+    rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr publisher_ls_;
+    rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr publisher_pc_;
+    size_t count_;
+    double msg_period_ms_;
+    double scan_time_s_;
+    bool use_smart_pointer_;
+    int seed_memory_ = 342;
+    int scan_height_, scan_width_;
+    int msg_type_;
 
   };
 

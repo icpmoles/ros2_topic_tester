@@ -1,0 +1,7 @@
+sink:
+  ros__parameters:
+    file_output: "output/latency2.csv"
+    msg_type: 1
+    rolling_window_size: 20
+    # 0 = laserscan
+    # 1 = pointcloud
