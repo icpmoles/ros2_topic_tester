@@ -34,7 +34,7 @@ install(TARGETS latency_ls
 #   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>)
 # target_compile_features(latency_generic PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 
-# ament_target_dependencies(latency_generic  rosx_introspection)
+# ament_target_dependencies(latency_generic)
 
 # install(TARGETS latency_generic
 #   DESTINATION lib/${PROJECT_NAME})
@@ -48,7 +48,7 @@ target_include_directories(chatter PUBLIC
   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>)
 target_compile_features(chatter PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 
-ament_target_dependencies(chatter sensor_msgs rosx_introspection)
+ament_target_dependencies(chatter sensor_msgs)
 
 install(TARGETS chatter
   DESTINATION lib/${PROJECT_NAME})
