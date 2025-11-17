@@ -14,9 +14,6 @@ def generate_launch_description():
             name = "sink",
             parameters=[PathJoinSubstitution([
                 FindPackageShare('topic_tester'), 'config', 'fake_source.yaml'])
-            ],
-            remappings=[
-                ('/input', '/lidar') # either /laserscan or /lidar
             ]
         )
     ])

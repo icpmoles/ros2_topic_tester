@@ -7,8 +7,12 @@ source:
 
 sink:
   ros__parameters:
-    file_output: "/home/ros2/tesi/topic_tester/latency_ls_inter_fake.csv"
+    file_output_prefix: "output/latency_ls_inter_fake"
     rolling_window_size: 20
+    long_mode: false
+    long_mode_total_groups: 20
+    long_mode_period: 1800 # [seconds] between two group
+
 
 /**:
   ros__parameters:

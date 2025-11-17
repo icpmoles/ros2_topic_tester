@@ -29,14 +29,14 @@ class MinimalPublisher : public rclcpp::Node
       case 0:
        
         RCLCPP_INFO(this->get_logger(), "Publishing: laserscan: %i points @ %f ms ≈ %f Hz ", scan_width_, scan_time_s_*1e-3 ,1/scan_time_s_); 
-        publisher_ls_ = this->create_publisher<sensor_msgs::msg::LaserScan>("laserscan", rclcpp::SensorDataQoS());
+        publisher_ls_ = this->create_publisher<sensor_msgs::msg::LaserScan>("topic", rclcpp::SensorDataQoS());
         timer_ = this->create_wall_timer(timer_period, std::bind(&MinimalPublisher::timer_callback_ls, this));
         
         break;
       case 1:
         RCLCPP_INFO(this->get_logger(), "Publishing: pc2: %i x %i @ %f ms ≈ %f Hz ", scan_width_, scan_height_, scan_time_s_*1e3 ,1/scan_time_s_);
 
-        publisher_pc_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("lidar", rclcpp::SensorDataQoS());
+        publisher_pc_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("topic", rclcpp::SensorDataQoS());
         timer_ = this->create_wall_timer(timer_period, std::bind(&MinimalPublisher::timer_callback_pc, this));
         break;
       default:
@@ -142,7 +142,7 @@ class MinimalPublisher : public rclcpp::Node
         if (use_smart_pointer_){
             auto message = std::make_unique<sensor_msgs::msg::LaserScan>();
             message->ranges=payload_ranges;
-            message->intensities=payload_intensities;
+          //  message->intensities=payload_intensities;
             message->scan_time = scan_time_s_;
             message->header.stamp = this->now();
             message->header.frame_id = frame_name;
@@ -150,7 +150,7 @@ class MinimalPublisher : public rclcpp::Node
         } else {
             auto message = sensor_msgs::msg::LaserScan();
             message.ranges=payload_ranges;
-            message.intensities=payload_intensities;
+          //  message.intensities=payload_intensities;
             message.scan_time = scan_time_s_;
             message.header.stamp = this->now();
             message.header.frame_id = frame_name;

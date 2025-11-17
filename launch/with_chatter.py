@@ -24,9 +24,10 @@ def generate_launch_description():
             name = "sink",
             parameters=[PathJoinSubstitution([
                 FindPackageShare('topic_tester'), 'config', 'fake_source.yaml'])
-            ],
-            remappings=[
-                ('/input', '/laserscan') # either /laserscan or /lidar
             ]
+            # remappings=[
+            #     ('/topic', '/lidar') # either /laserscan or /lidar
+            # ]
+            #prefix=['gdbserver localhost:3000'],
         )
     ])

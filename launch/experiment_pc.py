@@ -16,7 +16,7 @@ def generate_launch_description():
                 FindPackageShare('topic_tester'), 'config', 'sink_pc.yaml'])
             ],
             remappings=[
-                ('/input', '/livox/lidar') # either /laserscan or /lidar
+                ('/topic', '/livox/lidar') 
             ]
         )
     ])
