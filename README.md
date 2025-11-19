@@ -4,8 +4,10 @@ TODO.
 
 - [x] Log size
 
-- [ ] Log container name. 
+- [x] Log container name. 
 
-        Solution: use launch arguments??
+- [x] Long running mode
 
-- [ ] Long running mode
+
+# How to
+

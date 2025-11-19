@@ -113,6 +113,7 @@ class MinimalPublisher : public rclcpp::Node
     {
         std::string frame_name = "dummy";
         std::vector payload = get_random_pc((size_t) scan_width_*scan_height_,324);
+
         if (use_smart_pointer_){
             auto message = std::make_unique<sensor_msgs::msg::PointCloud2>();
             message->data=payload;
@@ -125,7 +126,6 @@ class MinimalPublisher : public rclcpp::Node
             auto message = sensor_msgs::msg::PointCloud2();
             message.data=payload;
             message.header.frame_id = frame_name;
-
             message.header.stamp = this->now();
             publisher_pc_->publish(message);
         }

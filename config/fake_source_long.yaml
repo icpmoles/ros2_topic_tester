@@ -7,7 +7,7 @@ source:
 
 sink:
   ros__parameters:
-    file_output_prefix: "output/latency_ls_inter_fake"
+    #file_output_prefix: "output/latency_ls_inter_fake"
     rolling_window_size: 20
     msgs_samples: 23
     long_mode: true
