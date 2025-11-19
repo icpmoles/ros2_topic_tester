@@ -16,6 +16,9 @@ def generate_launch_description():
             name="source",
             parameters=[PathJoinSubstitution([
                 FindPackageShare('topic_tester'), 'config', 'fake_source.yaml'])
+            ],
+            remappings=[
+                ('/topic', '/laserscan') # either /laserscan or /lidar
             ]
         )
     ])

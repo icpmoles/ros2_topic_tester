@@ -7,8 +7,6 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
-
-
     return LaunchDescription([
         Node(
             package='topic_tester',
@@ -16,9 +14,6 @@ def generate_launch_description():
             name = "sink",
             parameters=[PathJoinSubstitution([
                 FindPackageShare('topic_tester'), 'config', 'fake_source.yaml'])
-            ],
-            remappings=[
-                ('/input', '/lidar') # either /laserscan or /lidar
             ]
         )
     ])
